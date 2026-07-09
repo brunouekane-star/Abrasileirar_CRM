@@ -6,8 +6,9 @@ import { BrandLogo } from "@/components/brand-logo";
 import { navItems } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 
-export function AppSidebar() {
+export function AppSidebar({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname();
+  const items = navItems.filter((item) => !item.adminOnly || isAdmin);
 
   return (
     <aside className="hidden w-60 shrink-0 flex-col border-r bg-sidebar md:flex">
@@ -20,7 +21,7 @@ export function AppSidebar() {
       </div>
 
       <nav className="flex-1 space-y-1 p-3">
-        {navItems.map((item) => {
+        {items.map((item) => {
           const active =
             pathname === item.href || pathname.startsWith(item.href + "/");
           const Icon = item.icon;

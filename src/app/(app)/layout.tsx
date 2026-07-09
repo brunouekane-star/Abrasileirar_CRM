@@ -27,7 +27,7 @@ export default async function AppLayout({
 
   return (
     <div className="flex min-h-screen">
-      <AppSidebar />
+      <AppSidebar isAdmin={role === "admin"} />
       <div className="flex flex-1 flex-col">
         <header className="flex h-16 items-center justify-end border-b bg-background px-6">
           <UserMenu
