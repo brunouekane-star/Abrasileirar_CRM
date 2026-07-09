@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, ShieldCheck, GraduationCap } from "lucide-react";
+import { Plus, ShieldCheck, GraduationCap, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createUser, setUserRole } from "@/lib/actions/users";
+import { createUser, deleteUser, setUserRole } from "@/lib/actions/users";
 
 export type ManagedUser = {
   id: string;
@@ -136,6 +136,8 @@ function UserRow({
 }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   async function changeRole(role: "admin" | "professor") {
     if (role === user.role) return;
@@ -147,6 +149,19 @@ function UserRow({
       return;
     }
     toast.success("Papel atualizado!");
+    router.refresh();
+  }
+
+  async function handleDelete() {
+    setDeleting(true);
+    const result = await deleteUser(user.id);
+    setDeleting(false);
+    if (!result.ok) {
+      toast.error("Erro ao excluir", { description: result.error });
+      return;
+    }
+    toast.success("Usuário excluído.");
+    setConfirmOpen(false);
     router.refresh();
   }
 
@@ -187,8 +202,50 @@ function UserRow({
               <SelectItem value="admin">Administrador</SelectItem>
             </SelectContent>
           </Select>
+          {!isSelf ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-muted-foreground hover:text-destructive"
+              onClick={() => setConfirmOpen(true)}
+              aria-label="Excluir usuário"
+            >
+              <Trash2 className="size-4" />
+            </Button>
+          ) : null}
         </div>
       </CardContent>
+
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Excluir usuário</DialogTitle>
+            <DialogDescription>
+              Esta ação é permanente. O acesso de{" "}
+              <span className="font-medium text-foreground">
+                {user.full_name || user.email}
+              </span>{" "}
+              será removido e não pode ser desfeito.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setConfirmOpen(false)}
+              disabled={deleting}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={deleting}
+            >
+              {deleting ? "Excluindo..." : "Excluir"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

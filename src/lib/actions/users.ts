@@ -128,3 +128,27 @@ export async function setUserActive(
   revalidatePath("/usuarios");
   return { ok: true };
 }
+
+export async function deleteUser(userId: string): Promise<Result> {
+  const gate = await requireAdmin();
+  if (!gate.ok) return { ok: false, error: gate.error };
+
+  if (gate.userId === userId) {
+    return { ok: false, error: "Você não pode excluir a si mesmo." };
+  }
+
+  const admin = adminAuthClient();
+  if (!admin) {
+    return {
+      ok: false,
+      error: "SUPABASE_SERVICE_ROLE_KEY não configurada no servidor.",
+    };
+  }
+
+  // Deleting the auth user cascades to the profile (profiles.id FK on delete cascade).
+  const { error } = await admin.auth.admin.deleteUser(userId);
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/usuarios");
+  return { ok: true };
+}
