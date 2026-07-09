@@ -104,6 +104,7 @@ export function CreateLeadDialog({ services }: { services: Service[] }) {
             <div className="space-y-2">
               <Label>Tipo</Label>
               <Select
+                items={{ b2c: "B2C (Individual)", b2b: "B2B (Corporativo)" }}
                 value={type}
                 onValueChange={(v) => setValue("type", v as "b2b" | "b2c")}
               >
@@ -173,7 +174,12 @@ export function CreateLeadDialog({ services }: { services: Service[] }) {
 
           <div className="space-y-2">
             <Label>Produto de interesse</Label>
-            <Select onValueChange={(v) => setValue("service_id", v as string)}>
+            <Select
+              items={Object.fromEntries(
+                services.map((s) => [String(s.id), s.name]),
+              )}
+              onValueChange={(v) => setValue("service_id", v as string)}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione um programa" />
               </SelectTrigger>

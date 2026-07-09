@@ -57,7 +57,11 @@ export function StudentEditForm({
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label>Nível de proficiência</Label>
-          <Select value={level} onValueChange={(v) => setLevel(v as string)}>
+          <Select
+            items={{ [NONE]: "Não avaliado", ...PROFICIENCY_LABELS }}
+            value={level}
+            onValueChange={(v) => setLevel(v as string)}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Não avaliado" />
             </SelectTrigger>
@@ -74,7 +78,16 @@ export function StudentEditForm({
 
         <div className="space-y-2">
           <Label>Professor responsável</Label>
-          <Select value={teacher} onValueChange={(v) => setTeacher(v as string)}>
+          <Select
+            items={{
+              [NONE]: "Sem professor",
+              ...Object.fromEntries(
+                teachers.map((t) => [t.id, t.full_name || "(sem nome)"]),
+              ),
+            }}
+            value={teacher}
+            onValueChange={(v) => setTeacher(v as string)}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Sem professor" />
             </SelectTrigger>

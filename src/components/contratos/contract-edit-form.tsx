@@ -60,6 +60,7 @@ export function ContractEditForm({ contract }: { contract: Contract }) {
         <div className="space-y-2">
           <Label>Situação</Label>
           <Select
+            items={CONTRACT_STATUS_LABELS}
             value={status}
             onValueChange={(v) => setStatus(v as ContractStatus)}
           >

@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { updateLead } from "@/lib/actions/leads";
-import { STAGES } from "@/lib/pipeline";
+import { STAGES, STAGE_LABEL } from "@/lib/pipeline";
 import type { Lead, LeadStage, Service } from "@/lib/types";
 
 const NONE = "__none__";
@@ -181,6 +181,12 @@ export function EditLeadDialog({
               <div className="space-y-2">
                 <Label>Produto de interesse</Label>
                 <Select
+                  items={{
+                    [NONE]: "Nenhum",
+                    ...Object.fromEntries(
+                      services.map((s) => [String(s.id), s.name]),
+                    ),
+                  }}
                   value={form.service_id}
                   onValueChange={(v) => set("service_id", v as string)}
                 >
@@ -212,6 +218,7 @@ export function EditLeadDialog({
             <div className="space-y-2">
               <Label>Situação</Label>
               <Select
+                items={STAGE_LABEL}
                 value={form.stage}
                 onValueChange={(v) => set("stage", v as LeadStage)}
               >

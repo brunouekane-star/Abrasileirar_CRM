@@ -93,6 +93,12 @@ export function LogHoursDialog({
             <div className="space-y-2">
               <Label>Contrato</Label>
               <Select
+                items={Object.fromEntries(
+                  contracts.map((c) => [
+                    String(c.id),
+                    `${c.label} (${c.remaining}h restantes)`,
+                  ]),
+                )}
                 value={contractId}
                 onValueChange={(v) => setContractId(v as string)}
               >

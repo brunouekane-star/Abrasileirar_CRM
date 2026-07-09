@@ -103,6 +103,7 @@ function CreateUserDialog() {
             <div className="space-y-2">
               <Label>Papel</Label>
               <Select
+                items={{ professor: "Professor", admin: "Administrador" }}
                 value={role}
                 onValueChange={(v) => setRole(v as "admin" | "professor")}
               >
@@ -190,6 +191,7 @@ function UserRow({
             {user.role === "admin" ? "Admin" : "Professor"}
           </Badge>
           <Select
+            items={{ professor: "Professor", admin: "Administrador" }}
             value={user.role}
             onValueChange={(v) => changeRole(v as "admin" | "professor")}
             disabled={busy || isSelf}

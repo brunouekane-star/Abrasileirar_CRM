@@ -105,6 +105,7 @@ export function CreateContractDialog({
               <div className="space-y-2">
                 <Label>Vincular a</Label>
                 <Select
+                  items={{ student: "Aluno (B2C)", company: "Empresa (B2B)" }}
                   value={party}
                   onValueChange={(v) => {
                     setParty(v as "student" | "company");
@@ -122,7 +123,13 @@ export function CreateContractDialog({
               </div>
               <div className="space-y-2">
                 <Label>{party === "student" ? "Aluno" : "Empresa"}</Label>
-                <Select value={partyId} onValueChange={(v) => setPartyId(v as string)}>
+                <Select
+                  items={Object.fromEntries(
+                    partyOptions.map((o) => [String(o.id), o.name]),
+                  )}
+                  value={partyId}
+                  onValueChange={(v) => setPartyId(v as string)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
@@ -139,7 +146,13 @@ export function CreateContractDialog({
 
             <div className="space-y-2">
               <Label>Serviço</Label>
-              <Select value={serviceId} onValueChange={(v) => setServiceId(v as string)}>
+              <Select
+                items={Object.fromEntries(
+                  services.map((s) => [String(s.id), s.name]),
+                )}
+                value={serviceId}
+                onValueChange={(v) => setServiceId(v as string)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione um programa" />
                 </SelectTrigger>
