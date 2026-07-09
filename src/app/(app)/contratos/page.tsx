@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -63,7 +64,8 @@ export default async function ContratosPage({
             const student = one<{ full_name: string }>(c.student);
             const owner = company?.name ?? student?.full_name ?? "—";
             return (
-              <Card key={c.id}>
+              <Link key={c.id} href={`/contratos/${c.id}`}>
+                <Card className="transition-colors hover:border-primary/40">
                 <CardContent className="space-y-3 py-5">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
@@ -99,7 +101,8 @@ export default async function ContratosPage({
                     </span>
                   </div>
                 </CardContent>
-              </Card>
+                </Card>
+              </Link>
             );
           })}
         </div>
