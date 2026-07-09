@@ -8,7 +8,13 @@ import { formatBRL } from "@/lib/pipeline";
 import { one } from "@/lib/db";
 import type { ContractStatus } from "@/lib/types";
 
-export default async function ContratosPage() {
+export default async function ContratosPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ aluno?: string }>;
+}) {
+  const sp = await searchParams;
+  const autoStudentId = sp.aluno ? Number(sp.aluno) : undefined;
   const supabase = await createClient();
 
   const [{ data: contracts }, { data: services }, { data: students }, { data: companies }] =
@@ -39,6 +45,7 @@ export default async function ContratosPage() {
             (students ?? []).map((s) => ({ id: s.id, name: s.full_name }))
           }
           companies={(companies as { id: number; name: string }[]) ?? []}
+          autoStudentId={autoStudentId}
         />
       </div>
 

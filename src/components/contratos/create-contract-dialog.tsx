@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
@@ -30,10 +30,12 @@ export function CreateContractDialog({
   services,
   students,
   companies,
+  autoStudentId,
 }: {
   services: Option[];
   students: Option[];
   companies: Option[];
+  autoStudentId?: number;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -45,6 +47,15 @@ export function CreateContractDialog({
   const [monthlyValue, setMonthlyValue] = useState("");
   const [endDate, setEndDate] = useState("");
   const [saving, setSaving] = useState(false);
+
+  // Auto-open pre-filled when arriving from a lead conversion (RF03).
+  useEffect(() => {
+    if (autoStudentId) {
+      setParty("student");
+      setPartyId(String(autoStudentId));
+      setOpen(true);
+    }
+  }, [autoStudentId]);
 
   async function handleSave() {
     setSaving(true);

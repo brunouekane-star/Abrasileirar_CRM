@@ -62,7 +62,9 @@ export async function updateLeadStage(
 }
 
 /** Convert a won lead into client records (RF03). Idempotent-guarded. */
-export async function convertLead(id: number): Promise<ActionResult> {
+export async function convertLead(
+  id: number,
+): Promise<{ ok: true; studentId: number } | { ok: false; error: string }> {
   const supabase = await createClient();
 
   const { data: lead, error: readErr } = await supabase
@@ -76,12 +78,12 @@ export async function convertLead(id: number): Promise<ActionResult> {
     return { ok: false, error: "Este lead já foi convertido em cliente." };
   }
 
-  const { error } = await supabase.rpc("convert_lead", { p_lead_id: id });
+  const { data, error } = await supabase.rpc("convert_lead", { p_lead_id: id });
   if (error) return { ok: false, error: error.message };
 
   revalidatePath("/pipeline");
   revalidatePath("/alunos");
-  return { ok: true };
+  return { ok: true, studentId: data as number };
 }
 
 export async function deleteLead(id: number): Promise<ActionResult> {

@@ -37,8 +37,8 @@ export function LeadCard({
       toast.error("Não foi possível converter", { description: result.error });
       return;
     }
-    toast.success("Lead convertido em cliente!");
-    router.refresh();
+    toast.success("Lead convertido! Vamos criar o contrato.");
+    router.push(`/contratos?aluno=${result.studentId}`);
   }
 
   const showConvert =
