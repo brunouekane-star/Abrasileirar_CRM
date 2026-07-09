@@ -46,6 +46,58 @@ export async function createLead(input: LeadInput): Promise<ActionResult> {
   return { ok: true };
 }
 
+const updateSchema = z.object({
+  id: z.coerce.number().int().positive(),
+  contact_name: z.string().trim().min(1, "Informe o nome do contato."),
+  company_name: z.string().trim().optional().nullable(),
+  email: z.string().trim().email("E-mail inválido.").optional().or(z.literal("")),
+  phone: z.string().trim().optional().nullable(),
+  nationality: z.string().trim().optional().nullable(),
+  native_language: z.string().trim().optional().nullable(),
+  service_id: z.coerce.number().int().positive().optional().nullable(),
+  estimated_value: z.coerce.number().nonnegative().optional().nullable(),
+  stage: z.enum([
+    "lead",
+    "first_contact",
+    "proposal_sent",
+    "negotiation",
+    "won",
+    "lost",
+  ]),
+  notes: z.string().trim().optional().nullable(),
+  lost_reason: z.string().trim().optional().nullable(),
+});
+
+export async function updateLead(input: unknown): Promise<ActionResult> {
+  const parsed = updateSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
+  }
+  const d = parsed.data;
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("leads")
+    .update({
+      contact_name: d.contact_name,
+      company_name: d.company_name || null,
+      email: d.email || null,
+      phone: d.phone || null,
+      nationality: d.nationality || null,
+      native_language: d.native_language || null,
+      service_id: d.service_id || null,
+      estimated_value: d.estimated_value ?? null,
+      stage: d.stage,
+      notes: d.notes || null,
+      // lost_reason só faz sentido quando perdido
+      lost_reason: d.stage === "lost" ? d.lost_reason || null : null,
+    })
+    .eq("id", d.id);
+
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/pipeline");
+  return { ok: true };
+}
+
 export async function updateLeadStage(
   id: number,
   stage: LeadStage,

@@ -10,7 +10,7 @@ export default async function PipelinePage() {
     supabase
       .from("leads")
       .select(
-        "id, type, stage, contact_name, company_name, email, phone, nationality, native_language, estimated_value, service_id, converted_at, created_at",
+        "id, type, stage, contact_name, company_name, email, phone, nationality, native_language, estimated_value, service_id, notes, lost_reason, converted_at, created_at",
       )
       .order("created_at", { ascending: false }),
     supabase
@@ -32,7 +32,10 @@ export default async function PipelinePage() {
         <CreateLeadDialog services={(services as Service[]) ?? []} />
       </div>
 
-      <KanbanBoard initialLeads={(leads as Lead[]) ?? []} />
+      <KanbanBoard
+        initialLeads={(leads as Lead[]) ?? []}
+        services={(services as Service[]) ?? []}
+      />
     </div>
   );
 }

@@ -20,6 +20,8 @@ export interface Lead {
   native_language: string | null;
   estimated_value: number | null;
   service_id: number | null;
+  notes: string | null;
+  lost_reason: string | null;
   converted_at: string | null;
   created_at: string;
 }

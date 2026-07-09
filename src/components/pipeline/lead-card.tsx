@@ -16,9 +16,11 @@ import type { Lead } from "@/lib/types";
 export function LeadCard({
   lead,
   overlay = false,
+  onEdit,
 }: {
   lead: Lead;
   overlay?: boolean;
+  onEdit?: (lead: Lead) => void;
 }) {
   const router = useRouter();
   const [converting, setConverting] = useState(false);
@@ -55,14 +57,22 @@ export function LeadCard({
       )}
     >
       <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <p className="truncate text-sm font-medium">{lead.contact_name}</p>
+        <button
+          type="button"
+          disabled={overlay || !onEdit}
+          onClick={() => onEdit?.(lead)}
+          className="min-w-0 flex-1 text-left disabled:cursor-default"
+          title="Ver / editar lead"
+        >
+          <p className="truncate text-sm font-medium hover:underline">
+            {lead.contact_name}
+          </p>
           {lead.company_name ? (
             <p className="truncate text-xs text-muted-foreground">
               {lead.company_name}
             </p>
           ) : null}
-        </div>
+        </button>
         <button
           type="button"
           className="cursor-grab touch-none text-muted-foreground hover:text-foreground active:cursor-grabbing"

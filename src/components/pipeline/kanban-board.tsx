@@ -13,21 +13,24 @@ import {
 } from "@dnd-kit/core";
 import { toast } from "sonner";
 import { LeadCard } from "@/components/pipeline/lead-card";
+import { EditLeadDialog } from "@/components/pipeline/edit-lead-dialog";
 import { STAGES } from "@/lib/pipeline";
 import { updateLeadStage } from "@/lib/actions/leads";
 import { cn } from "@/lib/utils";
-import type { Lead, LeadStage } from "@/lib/types";
+import type { Lead, LeadStage, Service } from "@/lib/types";
 
 function Column({
   stage,
   label,
   color,
   leads,
+  onEdit,
 }: {
   stage: LeadStage;
   label: string;
   color: string;
   leads: Lead[];
+  onEdit: (lead: Lead) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: stage });
 
@@ -49,7 +52,7 @@ function Column({
         )}
       >
         {leads.map((lead) => (
-          <LeadCard key={lead.id} lead={lead} />
+          <LeadCard key={lead.id} lead={lead} onEdit={onEdit} />
         ))}
         {leads.length === 0 ? (
           <p className="px-1 py-6 text-center text-xs text-muted-foreground">
@@ -61,10 +64,17 @@ function Column({
   );
 }
 
-export function KanbanBoard({ initialLeads }: { initialLeads: Lead[] }) {
+export function KanbanBoard({
+  initialLeads,
+  services,
+}: {
+  initialLeads: Lead[];
+  services: Service[];
+}) {
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
   const [activeId, setActiveId] = useState<number | null>(null);
   const [filter, setFilter] = useState<"all" | "b2b" | "b2c">("all");
+  const [editingLead, setEditingLead] = useState<Lead | null>(null);
 
   // Re-sync when the server component refetches (e.g. after creating a lead).
   useEffect(() => {
@@ -139,6 +149,7 @@ export function KanbanBoard({ initialLeads }: { initialLeads: Lead[] }) {
               label={s.label}
               color={s.color}
               leads={visible.filter((l) => l.stage === s.key)}
+              onEdit={setEditingLead}
             />
           ))}
         </div>
@@ -146,6 +157,12 @@ export function KanbanBoard({ initialLeads }: { initialLeads: Lead[] }) {
           {activeLead ? <LeadCard lead={activeLead} overlay /> : null}
         </DragOverlay>
       </DndContext>
+
+      <EditLeadDialog
+        lead={editingLead}
+        services={services}
+        onClose={() => setEditingLead(null)}
+      />
     </div>
   );
 }
