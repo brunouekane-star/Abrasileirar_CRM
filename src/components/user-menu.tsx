@@ -1,6 +1,7 @@
 "use client";
 
-import { LogOut } from "lucide-react";
+import Link from "next/link";
+import { LogOut, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -48,6 +49,14 @@ export function UserMenu({ name, email, role, avatarUrl }: Props) {
             {role === "admin" ? "Administrador" : "Professor"}
           </Badge>
         </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          render={<Link href="/perfil" />}
+          className="cursor-pointer"
+        >
+          <User className="size-4" />
+          Meu perfil
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <form action={signOut}>
           <button type="submit" className="w-full">
