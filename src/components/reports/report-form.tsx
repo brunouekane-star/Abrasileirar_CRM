@@ -55,6 +55,9 @@ export function ReportForm({
     }
     return init;
   });
+  const [feedback, setFeedback] = useState<Record<string, string>>(
+    () => (r?.feedback as Record<string, string>) ?? {},
+  );
   const [recomendacoes, setRecomendacoes] = useState(r?.recomendacoes ?? "");
   const [absences, setAbsences] = useState<ReportAbsence[]>(
     initial?.absences ?? [],
@@ -63,6 +66,9 @@ export function ReportForm({
 
   function setRating(key: string, v: number | null) {
     setRatings((prev) => ({ ...prev, [key]: v }));
+  }
+  function setFb(key: string, v: string) {
+    setFeedback((prev) => ({ ...prev, [key]: v }));
   }
   function updateAbsence(i: number, patch: Partial<ReportAbsence>) {
     setAbsences((a) => a.map((x, idx) => (idx === i ? { ...x, ...patch } : x)));
@@ -78,6 +84,7 @@ export function ReportForm({
       total_aulas: Number(totalAulas) || 0,
       ...Object.fromEntries(ALL_KEYS.map((k) => [k, ratings[k]])),
       recomendacoes: recomendacoes || null,
+      feedback,
       absences: absences.map((a) => ({
         data: a.data || null,
         conteudo: a.conteudo || null,
@@ -127,9 +134,19 @@ export function ReportForm({
         </CardHeader>
         <CardContent className="space-y-3">
           {SKILL_KEYS.map((k) => (
-            <div key={k} className="flex items-center justify-between gap-3">
-              <span className="text-sm">{SKILL_LABELS[k]}</span>
-              <RatingInput value={ratings[k]} onChange={(v) => setRating(k, v)} />
+            <div key={k} className="space-y-2">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-sm">{SKILL_LABELS[k]}</span>
+                <RatingInput
+                  value={ratings[k]}
+                  onChange={(v) => setRating(k, v)}
+                />
+              </div>
+              <Input
+                placeholder="Feedback do professor (opcional)"
+                value={feedback[k] ?? ""}
+                onChange={(e) => setFb(k, e.target.value)}
+              />
             </div>
           ))}
         </CardContent>
@@ -141,9 +158,19 @@ export function ReportForm({
         </CardHeader>
         <CardContent className="space-y-3">
           {ENGAGEMENT_KEYS.map((k) => (
-            <div key={k} className="flex items-center justify-between gap-3">
-              <span className="text-sm">{ENGAGEMENT_LABELS[k]}</span>
-              <RatingInput value={ratings[k]} onChange={(v) => setRating(k, v)} />
+            <div key={k} className="space-y-2">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-sm">{ENGAGEMENT_LABELS[k]}</span>
+                <RatingInput
+                  value={ratings[k]}
+                  onChange={(v) => setRating(k, v)}
+                />
+              </div>
+              <Input
+                placeholder="Feedback do professor (opcional)"
+                value={feedback[k] ?? ""}
+                onChange={(e) => setFb(k, e.target.value)}
+              />
             </div>
           ))}
           <p className="pt-1 text-xs text-muted-foreground">

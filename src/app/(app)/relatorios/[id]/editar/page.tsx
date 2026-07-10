@@ -18,7 +18,7 @@ export default async function EditarRelatorioPage({
   const { data: report } = await supabase
     .from("student_reports")
     .select(
-      "id, student_id, teacher_id, period_start, period_end, total_aulas, fala, audicao, leitura, escrita, gramatica, eng_participacao, eng_tarefas, eng_pratica, eng_assiduidade, recomendacoes, created_at, student:students(full_name)",
+      "id, student_id, teacher_id, period_start, period_end, total_aulas, fala, audicao, leitura, escrita, gramatica, eng_participacao, eng_tarefas, eng_pratica, eng_assiduidade, recomendacoes, feedback, created_at, student:students(full_name)",
     )
     .eq("id", reportId)
     .single();

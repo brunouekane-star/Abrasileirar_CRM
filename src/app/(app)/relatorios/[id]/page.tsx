@@ -157,6 +157,48 @@ export default async function RelatorioPage({
         </Card>
       </div>
 
+      {(() => {
+        const fb = (rep.feedback ?? {}) as Record<string, string>;
+        const items = [
+          ...SKILL_KEYS.map((k) => ({
+            label: SKILL_LABELS[k],
+            score: rep[k],
+            text: fb[k],
+          })),
+          ...ENGAGEMENT_KEYS.map((k) => ({
+            label: ENGAGEMENT_LABELS[k],
+            score: rep[k],
+            text: fb[k],
+          })),
+        ].filter((it) => it.text && it.text.trim());
+        if (items.length === 0) return null;
+        return (
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">
+                Observações por critério
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {items.map((it) => (
+                <div key={it.label} className="text-sm">
+                  <p className="font-medium">
+                    {it.label}
+                    {it.score != null ? (
+                      <span className="text-muted-foreground">
+                        {" "}
+                        · {it.score}/5
+                      </span>
+                    ) : null}
+                  </p>
+                  <p className="text-muted-foreground">{it.text}</p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        );
+      })()}
+
       {absCount > 0 ? (
         <Card>
           <CardHeader className="pb-2">

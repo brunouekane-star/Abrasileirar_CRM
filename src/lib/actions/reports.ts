@@ -28,6 +28,7 @@ const reportSchema = z.object({
   eng_pratica: rating,
   eng_assiduidade: rating,
   recomendacoes: z.string().trim().optional().nullable(),
+  feedback: z.record(z.string(), z.string()).optional().default({}),
   absences: z.array(absenceSchema).optional().default([]),
 });
 
@@ -60,6 +61,10 @@ export async function saveReport(input: unknown): Promise<SaveResult> {
     eng_pratica: d.eng_pratica ?? null,
     eng_assiduidade: d.eng_assiduidade ?? null,
     recomendacoes: d.recomendacoes || null,
+    // Guarda só os comentários não vazios.
+    feedback: Object.fromEntries(
+      Object.entries(d.feedback).filter(([, v]) => v && v.trim()),
+    ),
   };
 
   let reportId: number;

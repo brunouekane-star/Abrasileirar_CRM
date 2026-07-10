@@ -99,6 +99,7 @@ export interface StudentReport {
   eng_pratica: number | null;
   eng_assiduidade: number | null;
   recomendacoes: string | null;
+  feedback: Record<string, string> | null;
   created_at: string;
 }
 
