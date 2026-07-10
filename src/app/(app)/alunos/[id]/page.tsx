@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, FileText, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +11,7 @@ import {
   type ContractOption,
 } from "@/components/alunos/log-hours-dialog";
 import { CONTRACT_STATUS_LABELS } from "@/lib/labels";
+import { formatPeriod } from "@/lib/reports";
 import { one } from "@/lib/db";
 import type { ContractStatus, Student, TeacherOption } from "@/lib/types";
 
@@ -33,16 +34,22 @@ export default async function AlunoDetailPage({
 
   if (!student) notFound();
 
-  const [{ data: teachers }, { data: contracts }] = await Promise.all([
-    supabase.from("profiles").select("id, full_name, role").order("full_name"),
-    supabase
-      .from("contracts")
-      .select(
-        "id, total_hours, consumed_hours, remaining_hours, status, service:services(name)",
-      )
-      .eq("student_id", studentId)
-      .order("created_at", { ascending: false }),
-  ]);
+  const [{ data: teachers }, { data: contracts }, { data: reports }] =
+    await Promise.all([
+      supabase.from("profiles").select("id, full_name, role").order("full_name"),
+      supabase
+        .from("contracts")
+        .select(
+          "id, total_hours, consumed_hours, remaining_hours, status, service:services(name)",
+        )
+        .eq("student_id", studentId)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("student_reports")
+        .select("id, period_start, period_end")
+        .eq("student_id", studentId)
+        .order("period_start", { ascending: false }),
+    ]);
 
   const company = one<{ name: string }>(student.company);
 
@@ -123,6 +130,40 @@ export default async function AlunoDetailPage({
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader className="flex-row items-center justify-between gap-2 space-y-0">
+          <CardTitle className="text-base">Relatórios de desempenho</CardTitle>
+          <Link
+            href={`/alunos/${studentId}/relatorios/novo`}
+            className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            <Plus className="size-4" /> Novo relatório
+          </Link>
+        </CardHeader>
+        <CardContent>
+          {(reports ?? []).length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Nenhum relatório ainda.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {(reports ?? []).map((rep) => (
+                <Link
+                  key={rep.id}
+                  href={`/relatorios/${rep.id}`}
+                  className="flex items-center gap-3 rounded-lg border p-3 transition-colors hover:border-primary/40"
+                >
+                  <FileText className="size-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">
+                    {formatPeriod(rep.period_start, rep.period_end)}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <p className="text-xs text-muted-foreground">
         Contato: {student.email ?? "—"} · {student.phone ?? "—"}

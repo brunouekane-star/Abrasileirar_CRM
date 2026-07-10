@@ -82,3 +82,30 @@ export interface TeacherOption {
   role: string;
 }
 
+export interface StudentReport {
+  id: number;
+  student_id: number;
+  teacher_id: string | null;
+  period_start: string;
+  period_end: string;
+  total_aulas: number;
+  fala: number | null;
+  audicao: number | null;
+  leitura: number | null;
+  escrita: number | null;
+  gramatica: number | null;
+  eng_participacao: number | null;
+  eng_tarefas: number | null;
+  eng_pratica: number | null;
+  eng_assiduidade: number | null;
+  recomendacoes: string | null;
+  created_at: string;
+}
+
+export interface ReportAbsence {
+  id?: number;
+  data: string | null;
+  conteudo: string | null;
+  repor: boolean;
+}
+
