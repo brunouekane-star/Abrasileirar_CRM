@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Building2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent } from "@/components/ui/card";
@@ -34,7 +35,8 @@ export default async function EmpresasPage() {
           {(companies ?? []).map((c) => {
             const count = (c.students as { count: number }[])?.[0]?.count ?? 0;
             return (
-              <Card key={c.id}>
+              <Link key={c.id} href={`/empresas/${c.id}`}>
+                <Card className="transition-colors hover:border-primary/40">
                 <CardContent className="flex items-start gap-3 py-5">
                   <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     <Building2 className="size-5" />
@@ -50,7 +52,8 @@ export default async function EmpresasPage() {
                     </Badge>
                   </div>
                 </CardContent>
-              </Card>
+                </Card>
+              </Link>
             );
           })}
         </div>

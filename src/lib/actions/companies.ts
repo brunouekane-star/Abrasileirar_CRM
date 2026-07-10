@@ -34,3 +34,31 @@ export async function createCompany(input: unknown): Promise<Result> {
   revalidatePath("/empresas");
   return { ok: true };
 }
+
+const updateSchema = schema.extend({
+  id: z.coerce.number().int().positive(),
+});
+
+export async function updateCompany(input: unknown): Promise<Result> {
+  const parsed = updateSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
+  }
+  const d = parsed.data;
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("companies")
+    .update({
+      name: d.name,
+      industry: d.industry || null,
+      country: d.country || null,
+      contact_name: d.contact_name || null,
+      email: d.email || null,
+      phone: d.phone || null,
+    })
+    .eq("id", d.id);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/empresas");
+  revalidatePath(`/empresas/${d.id}`);
+  return { ok: true };
+}
