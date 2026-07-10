@@ -1,8 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FunnelChart, MonthlyHoursChart } from "@/components/dashboard/charts";
+import {
+  LowHoursAlert,
+  type LowHoursContract,
+} from "@/components/dashboard/low-hours-alert";
 import { createClient } from "@/lib/supabase/server";
 import { STAGES } from "@/lib/pipeline";
 import { formatBRL } from "@/lib/pipeline";
+import { LOW_HOURS_THRESHOLD } from "@/lib/labels";
+import { one } from "@/lib/db";
 import type { LeadStage } from "@/lib/types";
 
 function monthKey(d: Date) {
@@ -21,6 +27,7 @@ export default async function DashboardPage() {
     { data: leads },
     { count: activeStudents },
     { data: sessions },
+    { data: lowHoursRaw },
   ] = await Promise.all([
     supabase.from("contracts").select("monthly_value, total_value").eq("status", "active"),
     supabase.from("leads").select("stage"),
@@ -33,7 +40,26 @@ export default async function DashboardPage() {
       .select("session_date, duration_hours")
       .eq("status", "completed")
       .gte("session_date", sixMonthsAgo.toISOString()),
+    supabase
+      .from("contracts")
+      .select(
+        "id, remaining_hours, total_hours, service:services(name), company:companies(name), student:students(full_name)",
+      )
+      .eq("status", "active")
+      .lte("remaining_hours", LOW_HOURS_THRESHOLD)
+      .order("remaining_hours"),
   ]);
+
+  const lowHoursContracts: LowHoursContract[] = (lowHoursRaw ?? []).map((c) => ({
+    id: c.id,
+    owner:
+      one<{ name: string }>(c.company)?.name ??
+      one<{ full_name: string }>(c.student)?.full_name ??
+      "—",
+    service: one<{ name: string }>(c.service)?.name ?? null,
+    remaining_hours: c.remaining_hours,
+    total_hours: c.total_hours,
+  }));
 
   // Financial
   const mrr = (activeContracts ?? []).reduce(
@@ -122,6 +148,8 @@ export default async function DashboardPage() {
           </Card>
         ))}
       </div>
+
+      <LowHoursAlert contracts={lowHoursContracts} />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="sm:col-span-2 lg:col-span-1">
